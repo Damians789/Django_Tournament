@@ -1,0 +1,215 @@
+{% extends "header.html" %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+
+    {% load crispy_forms_tags %}
+
+    <!--Films-->
+    <div class="container py-5">
+        <div class="row">
+            <h1 class="font-weight-bold">Stadiony</h1>
+            {% if user.is_superuser %}
+                <button type="button" class="btn btn-outline-primary align-top" style="font-size:18px; border-radius: 20%; height: 40px;" data-toggle="modal" data-target="#stadionModal">+</button>
+            {% elif user.is_authenticated %}
+                <a tabindex="0" class="btn-xs btn-outline-danger align-top disabled text-nowrap" style="height: 0" role="button" data-toggle="popover" data-trigger="focus" title="Brak uprawnień" data-content="Nie posiadasz wystarczających uprawnień do tego typu akcji">X</a>
+            {% else %}
+                <a href="/register/" class="btn btn-outline-primary align-top" style="font-size:18px; border-radius: 20%; height: 40px;">+</a>
+            {% endif %}
+        </div>
+
+        <hr>
+        <br>
+        <div class="row">
+            {% for s in page_obj %}
+                    <div class="col-sm-12 col-md-6 col-lg-4 pb-4">
+                        <div class="card h-100" style="border:none">
+                            <img src="{{ s.stadion_zdjecie.url }}" class="card-img-top" alt="{{ s.stadion_nazwa }}" style="width: auto; height: 200px; object-fit: scale-down;">
+                            <div class="card-body">
+                                <div class="row">
+                                    <h5 class="card-title">{{ s.stadion_nazwa }}</h5>
+                                    {% if user.is_authenticated %}
+                                        <a class="align-top text-muted" href="/stadion/{{ s.id }}" style="font-size:8px">Edytuj  </a>
+                                        <a class="align-top text-muted" href="/stadion/{{ s.id }}/del" style="font-size:8px">  Usuń</a>
+{#                                    {% else %}#}
+{#                                        <a class="align-top text-muted" href="/register/" style="font-size:8px">Edytuj  </a>#}
+{#                                        <a class="align-top text-muted" href="/register/" style="font-size:8px">  Usuń</a>#}
+                                    {% endif %}
+                                </div>
+                                <a class="btn btn-outline-secondary align-top" data-toggle="collapse" href="#collapse1{{s.pk}}" role="button" aria-expanded="false" aria-controls="collapse{{s.pk}}" style="line-height: 5px; font-size-adjust: inherit;">Cechy</a>
+                                <div class="collapse" id="collapse1{{ s.pk }}">
+                                    <ul class="card-text text-muted checkbox" style="font-size:12px">
+                                        <li><p class="card-text text-muted" style="font-size:12px">Pojemność trybun: {{ s.pojemnosc_trybun }}</p></li>
+                                        <li >{% if s.niepelnosprawni == True %}
+                                            <p>Przystosowany dla niepełnosprawnych: Owszem</p>
+                                        {% else %}
+                                            <p>Przystosowany dla niepełnosprawnych: Niezbyt</p>
+                                        {% endif %}</li>
+                                    </ul>
+                                </div>
+                                <p class="text-muted" style="font-size:12px">Nawierzchnia: {{ s.naw_av }} | Stan szatni: {{ s.sza_av }} | Organizacja: {{ s.org_av }}</p>
+                                <div class="row">
+                                    <div class="col-3 text-center">
+{#                                        {% if user.is_authenticated %}#}
+{#                                            <form method="post">#}
+{#                                                {% csrf_token %}#}
+{#                                                <input type="hidden" value="{{s.id}}" name="id">#}
+{#                                                <button type="submit" class="btn btn-outline-primary" style="font-size:18px; border-radius: 50%">★</button>#}
+{#                                            </form>#}
+{#                                        {% else %}#}
+{#                                            <a href="/register/" class="btn btn-outline-primary" style="font-size:18px; border-radius: 50%">★</a>#}
+{#                                        {% endif %}#}
+                                    </div>
+                                    <div class="col-4 text-center">
+                                        <a class="btn btn-outline-primary" data-toggle="collapse" href="#collapse{{s.id}}" role="button" aria-expanded="false" aria-controls="collapse{{s.id}}">Ocena</a>
+                                    </div>
+                                </div>
+                                <div class="collapse" id="collapse{{s.id}}">
+                                    <div class="card card-body shadow">
+                                        <h6>Ocena Stadionu: {{ s.stadion_nazwa }}</h6>
+                                        <hr>
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            {% for field in vote_form %}
+                                                <div class="row">
+                                                    <div class="col-10" id="slider_{{field.name}}_{{s.id}}" onclick="sliderUpdate('{{field.name}}', {{s.id}})">{{field|as_crispy_field}}</div>
+                                                    <div class="col-2 my-auto">
+                                                        <h6 class="text-center"><span id="score_{{field.name}}_{{s.id}}" class=text-primary>5</span></h6>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                            <div class="text-right">
+                                                {% if user.is_authenticated %}
+                                                    <input type="hidden" value="{{s.id}}" name="stadion">
+                                                    <button type="submit" name="score_submit" class="btn btn-outline-primary">Oceń</button>
+                                                {% else %}
+                                                    <a href="/register/" class="btn btn-outline-primary">Zarejestruj się</a>
+                                                {% endif %}
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+            {% endfor %}
+        </div>
+
+        <!--Pagination-->
+        <div class="container">
+            <div class="pagination justify-content-center">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1">&laquo; first</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        <!--end of Pagination-->
+
+    </div>
+
+    <script>
+        function sliderUpdate(field, pk) {
+            document.getElementById("score_" + field + "_" + pk).innerText = document.getElementById("slider_" + field + "_" + pk).getElementsByClassName(field)[0].value;
+        }
+    </script>
+
+{#    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>#}
+{#    <script>#}
+{#        $(document).ready(function(){#}
+{#            $('[data-toggle="popover"]').popover();#}
+{#        });#}
+{#    </script>#}
+    <style>
+        #id_nawierzchnia, #id_szatnie, #id_organizacja {
+            -webkit-appearance: none;
+            width: 100%;
+            border-radius: 0px;
+            height: 25px;
+            background: #ffff;
+            outline: none;
+            opacity: 1;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+
+        #id_nawierzchnia::-webkit-slider-runnable-track, #id_szatnie::-webkit-slider-runnable-track, #id_organizacja::-webkit-slider-runnable-track {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 15px;
+            border-radius: 0px;
+            background: #fff;
+            outline: none;
+            opacity: 1;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+
+
+        #id_nawierzchnia::-webkit-slider-thumb, #id_szatnie::-webkit-slider-thumb, #id_organizacja::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            border-radius: 0px;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            background: #007bff;
+            cursor: pointer;
+        }
+
+
+        #id_nawierzchnia::-moz-range-thumb, #id_szatnie::-moz-range-thumb, #id_organizacja::-moz-range-thumb {
+            -webkit-appearance: none;
+            border-radius:0px;
+            width: 25px;
+            height: 25px;
+            background: #007bff;
+            cursor: pointer;
+        }
+
+        {##id_nawierzchnia::-moz-range-track, #id_szatnie::-moz-range-track, #id_organizacja::-moz-range-track {#}
+        {#    -webkit-appearance: none;#}
+        {#    border-radius:0px;#}
+        {#    width: 25px;#}
+        {#    height: 25px;#}
+        {#    background: #007bff;#}
+        {#    cursor: pointer;#}
+        {#}#}
+    </style>
+
+    <div class="modal fade" tabindex="-1" id="stadionModal" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dodaj Stadion</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ test|crispy }}
+{#                        <span class="text-muted" style="font-size:12px">Hold down "Control", or "Command" on a Mac, to select more than one.</span>#}
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="testo" class="btn btn-primary">Zapisz zmiany</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

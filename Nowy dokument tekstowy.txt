@@ -1,0 +1,19 @@
+Osoba może mieć status trenera lub zawodnika
+
+Jedna Osoba może mieć wiele drużyn, a jedna drużyna (team) może mieć wielu zawodników/trenerów
+
+Osoba posiada swój profil, do którego może przypisać dane zawody
+
+Każda dyscyplina (bieg na 100m, bieg na 300m, skok w dal, etc) ma podane trzech zawodników z najlepszymi wynikami oraz odpowiadające im wyniki
+
+Każdy zawodnik wybiera dyscypliny, w których chce startować na danych zawodach, może ich mieć więcej niż jedną
+
+Stadion ma informacje o pojemności trybun, swoim stałym adresie oraz czy jest dostosowany dla niepełnosprawnych, a także zdjęcie czy tzw. statystyki
+
+Vote pozwala ocenić osobie dany stadion
+
+Zawody mają swoją nazwę, czas i miejsce wydarzenia oraz czas utworzenia ich, affiliate_url, które jest takim aliasem dla jego nazwy, pozwalającym na przejście na dedykowaną im stronę
+oraz 
+Listę zawodników, w której podawany jest zawodnik, w jakiej dyscyplinie bierze udział (może być ich kilka), a także na jakie zawody. Później uzupełniany jest wynik
+
+Każde zawody mają również przyporządkowane szatnie dla danej drużyny

@@ -1,0 +1,121 @@
+{% extends 'header.html' %}
+
+{% block content %}
+
+{% load static %}
+
+    <!--CTA-->
+    <div class="cta-banner">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col-sm-12 col-md-12 col-lg-6 pb-4">
+                    <h1 class="cta-message display-4 font-weight-bold">Elevate your experiences</h1>
+                    <h5>Świat lekkiej atletyki, enjoy!</h5>
+                    {% if user.is_authenticated %}
+                        <a class="btn btn-primary mt-2" href="/stadiony/">Zobacz stadiony</a>
+                    {% else %}
+                        <a class="btn btn-primary mt-2" href="/zawody/">Znajdź zawody</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Headlines-->
+    <div class="container pt-5">
+        <div class="row">
+            <div class="col-lg-3 col-md-3 col-sm-12 pb-4">
+                <h5 class="text-primary">Ostatnio dodane</h5>
+                <hr>
+                {% for n in new_posts %}
+                    <a class="text-dark" href="/zawody/{{ n.aff_url }}">
+                        <h3>{{ n.zawody_nazwa }}</h3>
+                        <p class="text-muted" style="font-size:12px">{{ n.zawody_pub }}</p>
+                    </a>
+                    <hr>
+                {% endfor %}
+            </div>
+            <div class="col-lg-7 col-md-7 col-sm-12 pb-4">
+                <a class="text-dark" href="/zawody/{{ most_recent.aff_url }}" style="text-decoration: none">
+                    <img src="{{ most_recent.stadion.stadion_zdjecie.url }}" class="card-img-top" alt="{{most_recent.zawody_nazwa }}">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ most_recent.zawody_nazwa }}</h3>
+                        <p class="card-text text-muted" style="font-size:12px">{{ most_recent.zawody_pub }}</p>
+                        <p class="card-text">Data: {{ most_recent.zawody_data}}</p>
+                        <button class="btn btn-primary btn-sm">Zobacz więcej</button>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-12 pb-4">
+                <h5 class="text-primary">Najblizsze</h5>
+                <hr>
+                {% for k in kiedy %}
+                    <a class="text-dark" href="/zawody/{{ k.aff_url }}">
+                        <img src="{{ k.stadion.stadion_zdjecie.url }}" class="card-img-top" alt="{{k.zawody_nazwa }}">
+                        <h6>{{ k.zawody_nazwa }}</h6>
+                        <p class="text-info" style="font-size:12px">{{ k.zawody_data }}</p>
+                    </a>
+                    <hr>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!--Stadiony-->
+    <div class="container py-3">
+        <h2>Stadiony</h2>
+        <hr>
+        <br>
+        <div class="row">
+            {% for s in stadion %}
+                <div class="col-sm-12 col-md-6 col-lg-4 pb-4">
+                    <div class="card h-100" style="border:none">
+                        <img src="{{ s.stadion_zdjecie.url }}" class="card-img-top" alt="{{ s.stadion_nazwa }}" style="width: auto; height: 200px; object-fit: scale-down;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ s.stadion_nazwa }}</h5>
+                            <a class="btn btn-outline-secondary align-top" data-toggle="collapse" href="#collapse{{s.pk}}" role="button" aria-expanded="false" aria-controls="collapse{{s.pk}}" style="line-height: 5px; font-size-adjust: inherit;">Cechy</a>
+                            <div class="collapse" id="collapse{{ s.pk }}">
+                                <ul class="card-text text-muted checkbox" style="font-size:12px">
+                                    <li><p class="card-text text-muted" style="font-size:12px">Pojemność trybun: {{ s.pojemnosc_trybun }}</p></li>
+                                    <li >{% if s.niepelnosprawni == True %}
+                                        <p>Przystosowany dla niepełnosprawnych: Owszem</p>
+                                    {% else %}
+                                        <p>Przystosowany dla niepełnosprawnych: Niezbyt</p>
+                                    {% endif %}</li>
+                                </ul>
+                            </div>
+                        <p class="text-muted" style="font-size:12px">Nawierzchnia: {{ s.naw_av }} | Stan szatni: {{ s.sza_av }} | Organizacja: {{ s.org_av }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="container text-right">
+            <a href="/stadion/">Zobacz więcej</a>
+        </div>
+    </div>
+
+    <style>
+        .cta-banner {
+            background-image:
+                /* The image fade to white */
+                    linear-gradient( to left, rgba(0,0,0,0) 10%, #fff 85%),
+                        /* The image used */
+                    url("{% static "polls/images/athletic.jpg" %}");
+            /* Set a specific height */
+            height:400px;
+            /* Create the parallax scrolling effect */
+            background-attachment: fixed;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+            background-size: cover;
+            z-index: auto;
+            position: relative;
+        }
+
+        @media only screen and (max-width:600px) {
+            .cta-message {font-size:50px !important;}
+        }
+    </style>
+
+{% endblock %}

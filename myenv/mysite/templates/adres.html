@@ -1,0 +1,42 @@
+{% extends "header.html" %}
+{% block content %}
+    <div class="card">
+        <div class="card-header">
+            <h1><b>Adres ID {{ object }}</b></h1>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <!--for inline added titles-->
+                {% if object.has_titles %}
+                    {% for title in object.has_titles.all %}
+                        <tr>
+                            <th>Title @{{title.Miasto}}</th>
+                            <td>{{title.ZIP}}</td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+                <!--end-->
+                {% if object.subject %}
+                    <tr>
+                        <th>Subject</th>
+                        <td>{{ object.Ulica }}</td>
+                    </tr>
+                {% endif %}
+                {% if object.owner %}
+                    <tr>
+                        <th>Owner</th>
+                        <td>{{ object.NrDomu }}</td>
+                    </tr>
+                {% endif %}
+                {% if object.note %}
+                    <tr>
+                        <th>Note</th>
+                        <td>{{ object.NrLokalu }}</td>
+                    </tr>
+                {% endif %}
+            </table>
+            <a class="btn btn-outline-info" href="{% url 'polls:adres_up' pk=object.id %}">Update</a>
+            <a class="btn btn-outline-danger" href="{% url 'polls:adres_del' pk=object.id %}">Delete</a>
+        </div>
+    </div>
+{% endblock content %}

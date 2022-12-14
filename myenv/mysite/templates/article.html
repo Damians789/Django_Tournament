@@ -1,0 +1,69 @@
+{% extends "header.html" %}
+
+{% block content %}
+
+    <!--Article-->
+    <div class="article-banner text-center">
+        <br><br>
+        <div class="container">
+            <h1 class="article-heading font-weight-bold">{{ ok.zawody_nazwa }}</h1>
+            {% if user.is_superuser %}
+                <a href="/zawody/{{ ok.id }}" class="text-muted" >Edit</a>
+                <a href="/zawody/{{ ok.id }}/del" class="text-muted" >Delete</a>
+            {% endif %}
+            <p class="font-weight-bold" style="font-size:15px">{{ ok.zawody_pub }}</p>
+        </div>
+    </div>
+    <div class="container text-center">
+        <br>
+        <div class="">
+            {% now "Y-m-d" as todays_date %}
+            {% if todays_date < ok.zawody_data|date:"Y-m-d" %}
+                <div class="alert alert-success" role="alert" name="ok">
+                    <h4 class="alert-heading">Wydarzenie rozpocznie się </h4>
+                    <a class="btn btn btn-outline-success" aria-expanded="false"> {{ ok.zawody_data }}</a><br>
+                    <label for="ok"><a href="/zawody/" class="alert-link">zobacz też inne</a></label>
+                </div>
+
+            {% else %}
+                <div class="alert alert-danger" role="alert">
+                    Wydarzenie już się odbyło, zobacz pozostałe <a href="/zawody/" class="alert-link">Lista zawodów</a>
+                </div>
+                <p>Wydarzenie już się odbyło</p>
+                <a class="btn btn btn-outline-danger" aria-expanded="false"> {{ ok.zawody_data }}</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <style>
+        .article-banner {
+            background-image:
+                /* The image fade to white */
+                    linear-gradient(to left, rgba(0,0,0,0) 10%, #fff 85%),
+                        /* The image used */
+                    url("{{ ok.stadion.stadion_zdjecie.url }}");
+            /* Set a specific height */
+            height:200px;
+            /* Create the parallax scrolling effect */
+            background-attachment: fixed;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+            background-size: cover;
+            z-index: auto;
+            position: relative;
+        }
+
+        /* all devices up to 786px */
+        @media only screen and (max-width:768px) {
+            .article-heading {font-size:22px !important;}
+        }
+
+        /* devices 768px to 1200px */
+        @media only screen and (min-width:768px) and (max-width:1200px) {
+            .article-heading {font-size:27px !important;}
+        }
+    </style>
+
+
+
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "header.html" %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+
+    {% load crispy_forms_tags %}
+
+    <!--Zawody-->
+    <div class="container py-5">
+        <div class="row">
+            <h1 class="font-weight-bold">Zawody</h1>
+            {% if user.is_superuser %}
+                <button type="button" class="btn btn-outline-primary align-top" style="font-size:18px; border-radius: 20%; height: 40px;" data-toggle="modal" data-target="#zawodyModal">+</button>
+            {% elif user.is_authenticated %}
+                <a tabindex="0" class="btn-xs btn-outline-danger align-top disabled text-nowrap" style="height: 0" role="button" data-toggle="popover" data-trigger="focus" title="Brak uprawnień" data-content="Nie posiadasz wystarczających uprawnień do tego typu akcji">X</a>
+            {% else %}
+                <a href="/register/" class="btn btn-outline-primary align-top" style="font-size:18px; border-radius: 20%; height: 40px;">+</a>
+            {% endif %}
+        </div>
+{#        <hr>#}
+        <br>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Nazwa</th>
+                <th scope="col">Data</th>
+                <th scope="col">Utworzenie</th>
+                <th scope="col">Miejsce</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for z in page_obj %}
+                <tr>
+                    <th scope="row">{{ z.id }}</th>
+                    <td>
+                    <div class="row">
+                        <a href="/zawody/{{ z.aff_url }}" style="color: inherit;">
+                            {{ z.zawody_nazwa }}
+                        </a>
+                        {% if user.is_authenticated %}
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{z.id}}" name="id_zawody">
+                                <button type="submit" class="btn-xs btn-outline-primary align-top" style="border-radius: 50%; line-height: 5px; line-width:5px">★</button>
+                            </form>
+                        {% else %}
+                            <a href="/register/" class="btn btn-outline-primary" style="font-size:18px; border-radius: 50%">★</a>
+                        {% endif %}
+                    </div>
+                    </td>
+                    <td><p class="data">{{ z.zawody_data }}</p></td>
+                    <td><p class="dataTables_wrapper">{{ z.zawody_pub }}</p></td>
+                    <td>
+                    <address>
+                        <a class="btn btn-sm btn-secondary rounded-pill" data-toggle="collapse" href="#collapse{{z.pk}}" role="button" aria-expanded="false" aria-controls="collapse{{z.pk}}" style="">{{ z.stadion }}</a>
+                        <div class="collapse" id="collapse{{ z.pk }}">
+                            <p class="text-muted"> {{ z.stadion.stadion_adres }}</p>
+                        </div>
+                    </address>
+                    </td>
+                    <td>
+                        {% if user.is_authenticated %}
+                            <a class="text-muted" href="/zawody/{{ z.id }}" style="font-size:8px">Edytuj  </a>
+                            <a class="text-muted" href="/zawody/{{ z.id }}/del" style="font-size:8px">  Usuń</a>
+                        {% endif %}
+                    </td>
+                </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{#        <div class="row shadow p-3 mb-5 bg-body rounded">#}
+{#            <div class="col-lg-5">#}
+{#                <h5 class="text-first align-left">ID Nazwa</h5>#}
+{#            </div>#}
+{#            <div class="col-lg-2 ">#}
+{#                <p>Data</p>#}
+{#            </div>#}
+{#            <div class="col-lg-2">#}
+{#                <p>Utworzenie</p>#}
+{#            </div>#}
+{#            <div class="col-lg-3">#}
+{#                <p>Miejsce</p>#}
+{#            </div>#}
+{#        </div>#}
+{#        <div class="row">#}
+{#            {% for z in page_obj %}#}
+{#                <div class="col-lg-5">#}
+{#                    <div class="row">#}
+{#                        <a href="/{{ z.aff_url }}" style="color: inherit;">#}
+{#                            <h5 class="card-title">{{ z.id }})&nbsp;{{ z.zawody_nazwa }}</h5>#}
+{#                        </a>#}
+{#                        {% if user.is_authenticated %}#}
+{#                            <a class="align-top text-muted" href="/zawody/{{ z.id }}" style="font-size:8px">Edytuj  </a>#}
+{#                            <a class="align-top text-muted" href="/zawody/{{ z.id }}/del" style="font-size:8px">  Usuń</a>#}
+{#                        {% else %}#}
+{#                            <a class="align-top text-muted" href="/register/" style="font-size:8px">Edytuj  </a>#}
+{#                            <a class="align-top text-muted" href="/register/" style="font-size:8px">  Usuń</a>#}
+{#                        {% endif %}#}
+{#                    </div>#}
+{#                </div>#}
+{#                <div class="col-lg-2 ">#}
+{#                    <p class="data">{{ z.zawody_data }}</p>#}
+{#                </div>#}
+{#                <div class="col-lg-2">#}
+{#                    <p class="dataTables_wrapper">{{ z.zawody_pub }}</p>#}
+{#                </div>#}
+{#                <div class="col-lg-3">#}
+{#                    <a class="btn btn-sm btn-secondary rounded-pill" data-toggle="collapse" href="#collapse{{z.pk}}" role="button" aria-expanded="false" aria-controls="collapse{{z.pk}}" style="">{{ z.stadion }}</a>#}
+{#                    <div class="collapse" id="collapse{{ z.pk }}">#}
+{#                        <p class="text-muted"> {{ z.stadion.stadion_adres }}</p>#}
+{#                    </div>#}
+{#                </div>#}
+{#            {% endfor %}#}
+{#        </div>#}
+
+
+
+        <!--Pagination-->
+        <div class="container">
+            <div class="pagination justify-content-center">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1">&laquo; first</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        <!--end of Pagination-->
+
+    </div>
+
+    <div class="modal fade" tabindex="-1" id="zawodyModal" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dodaj zawody</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ uzawody|crispy }}
+                        {#                        <span class="text-muted" style="font-size:12px">Hold down "Control", or "Command" on a Mac, to select more than one.</span>#}
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="testo" class="btn btn-primary">Zapisz zmiany</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,199 @@
+{% extends "header.html" %}
+{% load static %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+
+    {% load crispy_forms_tags %}
+
+    <!--Osoby-->
+    <div class="container py-5">
+        <div class="row">
+            <h1 class="font-weight-bold">Osoby</h1>
+            {% if user.is_superuser %}
+                <button type="button" class="btn btn-outline-primary align-top" style="font-size:18px; border-radius: 20%; height: 40px;" data-toggle="modal" data-target="#osobaModal">+</button>
+            {% elif user.is_authenticated %}
+                <a tabindex="0" class="btn-xs btn-outline-danger align-top disabled text-nowrap" style="height: 0" role="button" data-toggle="popover" data-trigger="focus" title="Brak uprawnień" data-content="Nie posiadasz wystarczających uprawnień do tego typu akcji">X</a>
+            {% else %}
+                <a href="/register/" class="btn btn-outline-primary align-top" style="font-size:18px; border-radius: 20%; height: 40px;">+</a>
+            {% endif %}
+        </div>
+        <hr>
+        <br>
+        <div class="row">
+            {% for o in page_obj %}
+                <div class="col-sm-12 col-md-6 col-lg-4 pb-4">
+                    <div class="card h-100" style="border:none">
+                        <img src="{{ o.zdjecie.url }}" class="card-img-top " alt="{{ o.imie }}&nbsp; {{ o.nazwisko }}" style="width: auto; height: 200px; object-fit: scale-down;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ o.imie }}&nbsp;{{ o.nazwisko }}
+                                {% if user.is_authenticated %}
+                                    <a class="align-top text-muted" href="/osoba/{{ o.id }}" style="font-size:8px">Edytuj  </a>
+                                    <a class="align-top text-muted" href="/osoba/{{ o.id }}/del" style="font-size:8px">  Usuń</a>
+                                {% endif %}
+                            </h5>
+                            {% if user.is_authenticated %}
+                        <div class="row">
+                            <div class="col md-auto">
+                                <a class="btn btn-sm btn-secondary rounded-pill" data-toggle="collapse" href="#collapse{{o.pk}}" role="button" aria-expanded="false" aria-controls="collapse{{o.pk}}" style="">{{ o.status }}</a>
+                                <div class="collapse" id="collapse{{ o.pk }}">
+                                        <p class="text-muted">Ur:&nbsp;{{ o.data_urodzenia|slice:10 }}</p>
+                                        <p class="text-muted">Nr:&nbsp;{{ o.telefon }}</p>
+                                        <p class="text-muted">Email:&nbsp;{{ o.email }}</p>
+                                </div>
+                            </div>
+                            <div class="col md-auto">
+                                <a class="btn btn-sm btn-secondary rounded-pill" data-toggle="collapse" href="#collapse1{{o.pk}}" role="button" aria-expanded="false" aria-controls="collapse1{{o.pk}}" style="">Drużyny</a>
+                                <div class="collapse" id="collapse1{{ o.pk }}">
+                                    {% for t in o.team.all %}
+                                        <p class="text-muted"> {{ t.team_nazwa }}</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col md-auto">
+                                <a class="btn btn-sm btn-secondary rounded-pill" data-toggle="collapse" href="#collapse2{{o.pk}}" role="button" aria-expanded="false" aria-controls="collapse2{{o.pk}}" style="">Adres</a>
+                                <div class="collapse" id="collapse2{{ o.pk }}">
+                                <address>
+                                    <p class="text-muted"> {{ o.adres.Acode.Miasto }}</p>
+                                    <p class="text-muted">ul. {{ o.adres.Ulica }}&nbsp;{{ o.adres.NrDomu }}
+                                        {% if NrLokalu != None %}
+                                            /{o.adres.NrLokalu
+                                        {% endif %}
+                                    </p>
+                                    <p class="text-muted"> {{ o.adres.Acode.ZIP }}</p>
+                                    <p class="text-muted"> {{ o.adres.Acode.Woj }}</p>
+                                </address>
+                                </div>
+                            </div>
+                            </div>
+                    {% endif %}
+                            </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+        <!--Pagination-->
+        <div class="container">
+            <div class="pagination justify-content-center">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1">&laquo; first</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        <!--end of Pagination-->
+
+
+    <div class="modal fade" tabindex="-1" id="osobaModal" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dodaj Osobę</h5>
+{#                    <button type="button" class="btn-group-xs btn-outline-secondary align-top" style="font-size:10px; border-radius: 20%; height: 20px;" data-toggle="modal" data-target="#acodeModal">Dodaj adres 1</button>#}
+{#                    <button type="button" class="btn-group-xs btn-outline-secondary align-top" style="font-size:10px; border-radius: 20%; height: 20px;" data-toggle="modal" data-target="#adresModal">Dodaj adres 2</button>#}
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="changelist-form-container col-md-offset-10">
+                            {{ uosoba.imie|as_crispy_field }}
+                            {{ uosoba.nazwisko|as_crispy_field }}
+                        </div>
+                        <div class="fa-birthday-cake">
+                            {{ uosoba.data_urodzenia|as_crispy_field }}
+                        </div>
+                        <div class="fa-phone">
+                            {{ uosoba.telefon|as_crispy_field }}
+                        </div>
+                        <div class="col-fluid">
+                            {{ uosoba.email|as_crispy_field}}
+                        </div>
+                        <div class="col-fluid">
+                            {{ uosoba.zdjecie|as_crispy_field }}
+                        </div>
+                        <div class="col-fluid">
+                            {{ uosoba.adres|as_crispy_field }}
+                            <button type="button" class="btn-group-xs btn-outline-secondary align-top" style="font-size:10px; border-radius: 20%; height: 20px;" data-toggle="modal" data-target="#acodeModal">Dodaj adres 1</button>
+                            <button type="button" class="btn-group-xs btn-outline-secondary align-top" style="font-size:10px; border-radius: 20%; height: 20px;" data-toggle="modal" data-target="#adresModal">Dodaj adres 2</button>
+                        </div>
+                        <div class="list_placeholder">
+                            {{ uosoba.status|as_crispy_field }}
+                        </div>
+                        <div class="list_placeholder">
+                                {{ uosoba.team|as_crispy_field}}
+                        </div>
+                        <span class="text-muted" style="font-size:12px">Hold down "Control", or "Command" on a Mac, to select more than one.</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="testo" class="btn btn-primary">Zapisz zmiany</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" id="acodeModal" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dodaj Adres 1</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" enctype="multipart/form-data" action="{% url 'polls:osoba' %}">
+                        {% csrf_token %}
+                        {{ uacode|crispy }}
+                </div>
+                <div class="modal-footer">
+                    <div id="results"></div> <!-- errors go here -->
+                    <button type="submit" name="testo1" class="btn btn-primary">Zapisz zmiany</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" id="adresModal" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dodaj Adres 2</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ uadres|crispy }}
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="testo2" class="btn btn-primary">Zapisz zmiany</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
